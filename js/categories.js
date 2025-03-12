@@ -10,6 +10,15 @@ function loadVideos(){
     .then((data) => displayVideos(data.videos));
 }
 
+const loadCategoryVideos = (id) => {
+    const url = `
+    https://openapi.programming-hero.com/api/phero-tube/category/${id}`;
+    // console.log(url);
+    fetch(url)
+    .then((res) => res.json())
+    .then((data) => displayVideos(data.category))
+}
+
 function displayCategories(categories){
     // get the container
     const categoryContainer = document.getElementById('category-cntainer');
@@ -19,7 +28,7 @@ function displayCategories(categories){
         const categoryDiv = document.createElement('div');
 
         categoryDiv.innerHTML = `
-        <button class="btn btn-sm hover:bg-[#FF1F3D] p-3 hover:text-white">${cat.category}</button>
+        <button onclick = "loadCategoryVideos(${cat.category_id})" class="btn btn-sm hover:bg-[#FF1F3D] p-3 hover:text-white">${cat.category}</button>
         `;
         // append the element
         categoryContainer.appendChild(categoryDiv);
@@ -30,24 +39,37 @@ function displayCategories(categories){
 const displayVideos = (videos) => {
     const videoConatiner = document.getElementById('video-container')
 
+    videoConatiner.innerHTML = "";
+
     videos.forEach((video) => {
         console.log(video);
 
         const videoCard = document.createElement('div');
         videoCard.innerHTML = `
-            <div class="card bg-base-100 shadow-sm">
-            <figure>
-                <img
-                src="${video.thumbnail}"
-                alt="videos" />
-            </figure>
-            <div class="card-body">
-                <h2 class="card-title">${video.title}</h2>
-                <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
-                <div class="card-actions justify-end">
-                <button class="btn btn-primary">Buy Now</button>
+            <div class="card bg-base-100 shadow-sm mb-6">
+                <figure class="relative">
+                    <img class="w-full h-[240px]"
+                    src="${video.thumbnail}"
+                    alt="images" />
+                    <span class = "text-white font-bold rounded p-1 bg-black absolute bottom-2 right-2">${video.others.posted_date} </span>
+                </figure>
+                <div class="flex gap-3 px-0 mt-6">
+                    <div class="">
+                        <div class="avatar">
+                            <div class="w-14 h-14 rounded-full ">
+                              <img class = "w-full" src="${video.authors[0].profile_picture}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ml-2">
+                        <h2 class="font-bold text-xl mb-3">${video.title}</h2>
+                        <div class="flex">
+                            <p class="text-gray-400 mb-3">${video.authors[0].profile_name}</p>
+                            <img class="w-5 h-5" src="./Group 3.png" alt="">
+                        </div>
+                        <p class="text-gray-400 mb-8">${video.others.views} Views</p>
+                    </div>
                 </div>
-            </div>
             </div>
         `;
 
@@ -57,4 +79,3 @@ const displayVideos = (videos) => {
 }
 
 loadCategories();
-loadVideos();
