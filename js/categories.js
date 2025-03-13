@@ -4,8 +4,8 @@ function loadCategories(){
     .then((data) => displayCategories(data.categories));
 }
 
-function loadVideos(){
-    fetch('https://openapi.programming-hero.com/api/phero-tube/videos')
+function loadVideos(searchText = ""){
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchText}`)
     .then((res) => res.json())
     .then((data) => {
         removeActiveClass();
@@ -14,12 +14,42 @@ function loadVideos(){
     });
 }
 
+function loadVideoDetails(videoId){
+    const url = `https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`;
+    fetch(url)
+    .then((res) => res.json())
+    .then((data) => {
+        displayVideoDetails(data.video)
+    })
+}
+
 function removeActiveClass(){
     const activeBtn = document.getElementsByClassName('active');
 
     for(let b of activeBtn){
         b.classList.remove('active');
     }
+}
+
+const displayVideoDetails = (video) => {
+    console.log(video);
+    document.getElementById('video_details').showModal();
+    const detailsContainer = document.getElementById('details-container');
+
+    detailsContainer.innerHTML = `
+        <div class="card bg-base-100 image-full shadow-sm">
+        <figure>
+            <img
+            src="${video.thumbnail}"
+            alt="Shoes" />
+        </figure>
+        <div class="card-body">
+            <h2 class="card-title">${video.title}</h2>
+            <p>${video.description}</p>
+        </div>
+        </div>
+    `;
+
 }
 
 const loadCategoryVideos = (id) => {
@@ -94,11 +124,15 @@ const displayVideos = (videos) => {
                         <h2 class="font-bold text-xl mb-3">${video.title}</h2>
                         <div class="flex">
                             <p class="text-gray-400 mb-3">${video.authors[0].profile_name}</p>
-                            <img class="w-5 h-5" src="./Group 3.png" alt="">
+                            ${
+                                video.authors[0].verified == true ? 
+                                `<img class="w-5 h-5" src="./Group 3.png" alt=""/>` : ``
+                            }
                         </div>
                         <p class="text-gray-400 mb-8">${video.others.views} Views</p>
                     </div>
                 </div>
+                <button onclick = "loadVideoDetails('${video.video_id}')" class="btn btn-block bg-slate-200">Show Details</button>
             </div>
         `;
 
@@ -106,6 +140,13 @@ const displayVideos = (videos) => {
     })
 
 }
+
+document.getElementById('search-input')
+.addEventListener('keyup', (event) => {
+
+    const input = event.target.value;
+    loadVideos(input)
+})
 
 loadCategories();
 
